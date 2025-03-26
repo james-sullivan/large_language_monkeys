@@ -29,7 +29,10 @@ If we multiply the first equation by $-\\frac{3}{2}$, we obtain\n\n$$6y-9x=-\\fr
 
 # Examples taken from the MiniF2F training set
 # https://github.com/rah4927/lean-dojo-mew/blob/main/MiniF2F/Validation.lean
-MINIF2F_FEW_SHOT_PROMPT = """```import Mathlib.Algebra.BigOperators.Basic
+MINIF2F_FEW_SHOT_EXAMPLES = [
+    {
+        'instruction': 'Write a lean4 proof to the provided formal statement. You have access to the standard mathlib4 library.',
+        'statement': '''import Mathlib.Algebra.BigOperators.Basic
 import Mathlib.Data.Real.Basic
 import Mathlib.Data.Complex.Basic
 import Mathlib.Data.Nat.Log
@@ -48,8 +51,8 @@ theorem theorem1
   (k x: ℝ)
   (h₀ : x = (13 - Real.sqrt 131) / 4)
   (h₁ : 2 * x^2 - 13 * x + k = 0) :
-  k = 19/4 :=
-by (
+  k = 19/4 :=''',
+        'proof': '''by (
   rw [h₀] at h₁
   rw [eq_comm.mp (add_eq_zero_iff_neg_eq.mp h₁)]
   norm_num
@@ -59,10 +62,11 @@ by (
   rw [Real.mul_self_sqrt _]
   ring
   linarith
-)
-```
-Write a lean4 proof to the provided formal statement. You have access to the standard mathlib4 library.
-```import Mathlib.Algebra.BigOperators.Basic
+)''',
+    },
+    { 
+        'instruction': 'Write a lean4 proof to the provided formal statement. You have access to the standard mathlib4 library.',
+        'statement': '''import Mathlib.Algebra.BigOperators.Basic
 import Mathlib.Data.Real.Basic
 import Mathlib.Data.Complex.Basic
 import Mathlib.Data.Nat.Log
@@ -81,17 +85,18 @@ theorem theorem2
   (x p : ℝ)
   (h₀ : x < 2)
   (h₁ : abs (x - 2) = p) :
-  x - p = 2 - 2 * p :=
-by (
+  x - p = 2 - 2 * p :=''',
+        'proof': '''by (
   suffices abs (x - 2) = -(x - 2) by
     rw [h₁] at this
     linarith
   apply abs_of_neg
   linarith
-)
-```
-Write a lean4 proof to the provided formal statement. You have access to the standard mathlib4 library.
-```import Mathlib.Algebra.BigOperators.Basic
+)'''
+    },
+    { 
+        'instruction': 'Write a lean4 proof to the provided formal statement. You have access to the standard mathlib4 library.',
+        'statement': '''import Mathlib.Algebra.BigOperators.Basic
 import Mathlib.Data.Real.Basic
 import Mathlib.Data.Complex.Basic
 import Mathlib.Data.Nat.Log
@@ -112,16 +117,17 @@ theorem theorem3
   (h₀ : ∀ x, f x = x + 2)
   (h₁ : ∀ x, g x = x^2)
   (h₂ : f (g x) = g (f x)) :
-  x = - 1/2 :=
-by (
+  x = - 1/2 :=''',
+        'proof': '''by (
   norm_num
   simp_all [-one_div]
   field_simp [h₁]
   linarith
-)
-```
-Write a lean4 proof to the provided formal statement. You have access to the standard mathlib4 library.
-```import Mathlib.Algebra.BigOperators.Basic
+)'''
+    },
+    { 
+        'instruction': 'Write a lean4 proof to the provided formal statement. You have access to the standard mathlib4 library.',
+        'statement': '''import Mathlib.Algebra.BigOperators.Basic
 import Mathlib.Data.Real.Basic
 import Mathlib.Data.Complex.Basic
 import Mathlib.Data.Nat.Log
@@ -141,8 +147,8 @@ theorem theorem4
   (h₀ : a ≠ b)
   (h₁ : a ≠ 2 * b)
   (h₂ : (4 * a + 3 * b) / (a - 2 * b) = 5) :
-  (a + 11 * b) / (a - b) = 2 :=
-by (
+  (a + 11 * b) / (a - b) = 2 :=''',
+        'proof': '''by (
   rw [eq_comm]
   refine' (eq_div_iff _).mpr _
   exact sub_ne_zero_of_ne h₀
@@ -150,10 +156,11 @@ by (
   suffices : a = 13 * b; linarith
   have key : 5 * (a - 2 * b) = 4 * a + 3 * b; rwa [(eq_div_iff (sub_ne_zero_of_ne h₁)).mp]
   linarith
-)
-```
-Write a lean4 proof to the provided formal statement. You have access to the standard mathlib4 library.
-```import Mathlib.Algebra.BigOperators.Basic
+)'''
+    },
+    { 
+        'instruction': 'Write a lean4 proof to the provided formal statement. You have access to the standard mathlib4 library.',
+        'statement': '''import Mathlib.Algebra.BigOperators.Basic
 import Mathlib.Data.Real.Basic
 import Mathlib.Data.Complex.Basic
 import Mathlib.Data.Nat.Log
@@ -169,12 +176,11 @@ open Real
 open Nat
 open Topology
 theorem theorem5
-  Int.floor ((9:ℝ) / 160 * 100) = 5 :=
-by (
+  Int.floor ((9:ℝ) / 160 * 100) = 5 :=''',
+        'proof': '''by (
   rw [Int.floor_eq_iff]
   constructor
   all_goals norm_num
-)
-```
-
-"""
+)'''
+    }
+]

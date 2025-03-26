@@ -88,6 +88,9 @@ class GenerateScriptConfig(Config):
     gpus = None
     vllm_args = None
     vllm_port = 8000
+    
+    # Will store the LangChain model instance
+    llm = None  # Will be set to a LangChain LLM at runtime
 
     seed = 0
     limit = None
@@ -96,10 +99,10 @@ class GenerateScriptConfig(Config):
 
     num_few_shot = 2
     max_tokens = 1024
-    stop_strings = []
+    stop_strings = []  # type: list[str]
     num_samples = 2
     batch_size = 2
-    top_p = 0.95
+    top_p = 0.95 
     temperature = 0.6
 
     def finalize(self):
