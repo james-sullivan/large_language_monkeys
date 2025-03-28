@@ -3,23 +3,31 @@ import re
 import multiprocessing
 from functools import partial
 import os
+import asyncio
+from pathlib import Path
 
 # Third-party imports
 import pydra
 from tqdm import tqdm
 from datasets import load_dataset
-from langchain_anthropic import ChatAnthropic
 from dotenv import load_dotenv
-from langchain.prompts import FewShotPromptTemplate, PromptTemplate
+
+# Inspect AI imports
+from inspect_ai import Task, task
+from inspect_ai.model import get_model
+from inspect_ai.dataset import hf_dataset, Sample
+from inspect_ai.solver import generate, solver
+from inspect_ai.dataset import FieldSpec
 
 # Local imports
-from llmonk.utils import (
-    save_yaml,
-    GenerateScriptConfig,
-)
-from llmonk.generate.prompts import MINIF2F_FEW_SHOT_EXAMPLES
+#from llmonk.utils import (
+#    save_yaml,
+#    GenerateScriptConfig,
+#)
 
+# from llmonk.generate.prompts import MINIF2F_FEW_SHOT_EXAMPLES
 
+'''
 def replace_theorem_name(lean_code, new_name):
     """
     Replace dataset's theorem name with a generic name
@@ -31,18 +39,49 @@ def replace_theorem_name(lean_code, new_name):
     return modified_code
 
 
-def get_lean_prompt(data, theorem_name: str, add_solution: bool = False):
-    header = "Write a lean4 proof to the provided formal statement. You have access to the standard mathlib4 library.\n"
-    header += "```" + data["header"]
-    stmt = data["formal_statement"].replace(" sorry", "").replace("sorry", "")
-    if add_solution:
-        prompt = header + "\n" + stmt + data["solution"] + "```"
-    else:
-        prompt = header + "\n" + stmt + "\nby (\n"
-
-    prompt = replace_theorem_name(prompt, theorem_name)
-
+def build_few_shot_prompt(problem_statement):
+    """
+    Build a few-shot prompt using the examples from MINIF2F_FEW_SHOT_EXAMPLES
+    """
+    prompt = ""
+    
+    # Add the few-shot examples
+    for example in MINIF2F_FEW_SHOT_EXAMPLES:
+        prompt += f"{example['instruction']}\n{example['statement']}\n{example['proof']}\n\n"
+    
+    # Add the final instruction for the current problem
+    prompt += "Write a lean4 proof to the provided formal statement. You have access to the standard mathlib4 library. Only give the proof, no other text or formatting.\n"
+    prompt += problem_statement
+    
     return prompt
+
+
+async def generate_samples(model_name, problem_statement, max_tokens=1024, temperature=0.6, top_p=0.95, stop_strings=None, batch_size=1):
+    """
+    Use Inspect AI to generate samples for a given problem
+    """
+    async with get_model(model_name) as model:
+        prompt = build_few_shot_prompt(problem_statement)
+        
+        # Create a sample for the model
+        sample = Sample(input=prompt)
+        
+        # Generate using Inspect AI's generate solver
+        solver = generate(
+            max_tokens=max_tokens,
+            temperature=temperature,
+            top_p=top_p,
+            stop=stop_strings
+        )
+        
+        responses = []
+        for _ in range(batch_size):
+            # Clone the sample for each batch item
+            batch_sample = Sample(input=prompt)
+            result = await solver(batch_sample, model.generate)
+            responses.append(result.output)
+            
+        return prompt, responses
 
 
 def run_inference(item, config: GenerateScriptConfig):
@@ -50,50 +89,43 @@ def run_inference(item, config: GenerateScriptConfig):
     if outpath.exists():
         return
 
-    # we use five few-shot examples
-    prompt = MINIF2F_FEW_SHOT_PROMPT + get_lean_prompt(item, theorem_name="6")
-
+    # Create statement for the current problem
+    lean_header = item["header"]
+    formal_statement = item["formal_statement"].replace(" sorry", "").replace("sorry", "")
+    problem_statement = lean_header + "\n" + formal_statement + "\nby (\n"
+    problem_statement = replace_theorem_name(problem_statement, new_name="6")
+    
     num_samples = config.num_samples
     batch_size = config.batch_size
-
+    
     assert num_samples % batch_size == 0
-
-    samples: list[str] = []
+    
+    # Run async generation with Inspect AI
+    all_samples = []
+    prompt = None
+    
     for _ in tqdm(range(num_samples // batch_size), desc=f"Item {item['id']}"):
-        # Check if llm is None and handle appropriately
-        if config.llm is None:
-            raise ValueError("LLM is not configured properly. Please check your configuration.")
-            
-        responses = config.llm.generate(
-            [prompt] * batch_size,
+        # Run the async function to generate samples
+        prompt, samples = asyncio.run(generate_samples(
+            model_name=config.model,
+            problem_statement=problem_statement,
             max_tokens=config.max_tokens,
             temperature=config.temperature,
             top_p=config.top_p,
-            stop=config.stop_strings,
-        )
+            stop_strings=config.stop_strings,
+            batch_size=batch_size
+        ))
         
-        for generation in responses.generations:
-            text = generation[0].text
-            # In vllm, include_stop_str_in_output was set to True
-            # Here we need to add back the stop string if it was used
-            if config.stop_strings:
-                original_text = text
-                for stop_str in config.stop_strings:
-                    if stop_str in prompt + original_text:
-                        idx = (prompt + original_text).find(stop_str)
-                        if idx >= len(prompt):  # Only if the stop string is in the response, not the prompt
-                            # Add the stop string back to the text if it was used to stop generation
-                            text = original_text + stop_str
-                            break
-            samples.append(text)
-
+        all_samples.extend(samples)
+    
+    # Save the results
     out = {
         "prompt": prompt,
         "question": item["formal_statement"],
-        "samples": samples,
+        "samples": all_samples,
         "theorem_name": item["id"],
     }
-
+    
     save_yaml(outpath, out)
 
 
@@ -101,6 +133,10 @@ def run_inference(item, config: GenerateScriptConfig):
 def main(config: GenerateScriptConfig):
     # Load environment variables from .env file
     load_dotenv()
+    
+    # Set default stop string if not provided
+    if not config.stop_strings:
+        config.stop_strings = ['Write a lean4']
     
     dataset = load_dataset("cat-searcher/minif2f-lean4")
     math_problems = [p for p in dataset["test"] if "mathd" in p["id"]]
@@ -126,17 +162,11 @@ def main(config: GenerateScriptConfig):
 
     print(f"Total number of items to process: {len(math_problems)}")
 
-    # Set up the Anthropic model
-    # Check for Anthropic API key after loading from .env
-    if not os.environ.get("ANTHROPIC_API_KEY"):
+    # Check for API key after loading from .env
+    # Inspect AI uses provider-specific environment variables
+    if "anthropic" in config.model.lower() and not os.environ.get("ANTHROPIC_API_KEY"):
         raise ValueError("ANTHROPIC_API_KEY not found. Please set it in your .env file or environment variables.")
-        
-    config.llm = ChatAnthropic(
-        model_name=config.model,
-        temperature=config.temperature,
-        max_tokens=config.max_tokens,
-    )
-
+    
     go_func = partial(run_inference, config=config)
 
     if config.num_workers not in [0, None]:
@@ -151,7 +181,209 @@ def main(config: GenerateScriptConfig):
         predictions = []
         for item in tqdm(math_problems):
             predictions.append(go_func(item))
+'''
+MINIF2F_FEW_SHOT_EXAMPLES = [
+    {
+        'instruction': 'Write a lean4 proof to the provided formal statement. You have access to the standard mathlib4 library.',
+        'statement': '''import Mathlib.Algebra.BigOperators.Basic
+import Mathlib.Data.Real.Basic
+import Mathlib.Data.Complex.Basic
+import Mathlib.Data.Nat.Log
+import Mathlib.Data.Complex.Exponential
+import Mathlib.NumberTheory.Divisors
+import Mathlib.Data.ZMod.Defs
+import Mathlib.Data.ZMod.Basic
+import Mathlib.Topology.Basic
+import Mathlib.Data.Nat.Digits
+
+open BigOperators
+open Real
+open Nat
+open Topology
+theorem theorem1
+  (k x: ℝ)
+  (h₀ : x = (13 - Real.sqrt 131) / 4)
+  (h₁ : 2 * x^2 - 13 * x + k = 0) :
+  k = 19/4 :=''',
+        'proof': '''by (
+  rw [h₀] at h₁
+  rw [eq_comm.mp (add_eq_zero_iff_neg_eq.mp h₁)]
+  norm_num
+  rw [pow_two]
+  rw [mul_sub]
+  rw [sub_mul, sub_mul]
+  rw [Real.mul_self_sqrt _]
+  ring
+  linarith
+)''',
+    },
+    { 
+        'instruction': 'Write a lean4 proof to the provided formal statement. You have access to the standard mathlib4 library.',
+        'statement': '''import Mathlib.Algebra.BigOperators.Basic
+import Mathlib.Data.Real.Basic
+import Mathlib.Data.Complex.Basic
+import Mathlib.Data.Nat.Log
+import Mathlib.Data.Complex.Exponential
+import Mathlib.NumberTheory.Divisors
+import Mathlib.Data.ZMod.Defs
+import Mathlib.Data.ZMod.Basic
+import Mathlib.Topology.Basic
+import Mathlib.Data.Nat.Digits
+
+open BigOperators
+open Real
+open Nat
+open Topology
+theorem theorem2
+  (x p : ℝ)
+  (h₀ : x < 2)
+  (h₁ : abs (x - 2) = p) :
+  x - p = 2 - 2 * p :=''',
+        'proof': '''by (
+  suffices abs (x - 2) = -(x - 2) by
+    rw [h₁] at this
+    linarith
+  apply abs_of_neg
+  linarith
+)'''
+    },
+    { 
+        'instruction': 'Write a lean4 proof to the provided formal statement. You have access to the standard mathlib4 library.',
+        'statement': '''import Mathlib.Algebra.BigOperators.Basic
+import Mathlib.Data.Real.Basic
+import Mathlib.Data.Complex.Basic
+import Mathlib.Data.Nat.Log
+import Mathlib.Data.Complex.Exponential
+import Mathlib.NumberTheory.Divisors
+import Mathlib.Data.ZMod.Defs
+import Mathlib.Data.ZMod.Basic
+import Mathlib.Topology.Basic
+import Mathlib.Data.Nat.Digits
+
+open BigOperators
+open Real
+open Nat
+open Topology
+theorem theorem3
+  (x : ℝ)
+  (f g : ℝ → ℝ)
+  (h₀ : ∀ x, f x = x + 2)
+  (h₁ : ∀ x, g x = x^2)
+  (h₂ : f (g x) = g (f x)) :
+  x = - 1/2 :=''',
+        'proof': '''by (
+  norm_num
+  simp_all [-one_div]
+  field_simp [h₁]
+  linarith
+)'''
+    },
+    { 
+        'instruction': 'Write a lean4 proof to the provided formal statement. You have access to the standard mathlib4 library.',
+        'statement': '''import Mathlib.Algebra.BigOperators.Basic
+import Mathlib.Data.Real.Basic
+import Mathlib.Data.Complex.Basic
+import Mathlib.Data.Nat.Log
+import Mathlib.Data.Complex.Exponential
+import Mathlib.NumberTheory.Divisors
+import Mathlib.Data.ZMod.Defs
+import Mathlib.Data.ZMod.Basic
+import Mathlib.Topology.Basic
+import Mathlib.Data.Nat.Digits
+
+open BigOperators
+open Real
+open Nat
+open Topology
+theorem theorem4
+  (a b : ℝ)
+  (h₀ : a ≠ b)
+  (h₁ : a ≠ 2 * b)
+  (h₂ : (4 * a + 3 * b) / (a - 2 * b) = 5) :
+  (a + 11 * b) / (a - b) = 2 :=''',
+        'proof': '''by (
+  rw [eq_comm]
+  refine' (eq_div_iff _).mpr _
+  exact sub_ne_zero_of_ne h₀
+  rw [eq_comm] at h₂
+  suffices : a = 13 * b; linarith
+  have key : 5 * (a - 2 * b) = 4 * a + 3 * b; rwa [(eq_div_iff (sub_ne_zero_of_ne h₁)).mp]
+  linarith
+)'''
+    },
+    { 
+        'instruction': 'Write a lean4 proof to the provided formal statement. You have access to the standard mathlib4 library.',
+        'statement': '''import Mathlib.Algebra.BigOperators.Basic
+import Mathlib.Data.Real.Basic
+import Mathlib.Data.Complex.Basic
+import Mathlib.Data.Nat.Log
+import Mathlib.Data.Complex.Exponential
+import Mathlib.NumberTheory.Divisors
+import Mathlib.Data.ZMod.Defs
+import Mathlib.Data.ZMod.Basic
+import Mathlib.Topology.Basic
+import Mathlib.Data.Nat.Digits
+
+open BigOperators
+open Real
+open Nat
+open Topology
+theorem theorem5
+  Int.floor ((9:ℝ) / 160 * 100) = 5 :=''',
+        'proof': '''by (
+  rw [Int.floor_eq_iff]
+  constructor
+  all_goals norm_num
+)'''
+    }
+]
+
+lean_field = FieldSpec(
+    input="formal_statement",
+    metadata=["header", "id"]
+)
+
+# Create a custom solver for few-shot learning
+@solver
+def few_shot_solver():
+    async def solve(state, generate):
+        # Build prompt with few-shot examples
+        prompt = ""
+        for example in MINIF2F_FEW_SHOT_EXAMPLES:
+            prompt += f"{example['instruction']}\n{example['statement']}\n{example['proof']}\n\n"
+        
+        # Add instruction and problem statement
+        prompt += "Write a lean4 proof to the provided formal statement. You have access to the standard mathlib4 library.\n"
+        prompt += state.input
+        
+        # Replace the input with our few-shot prompt
+        state.messages = [{"role": "user", "content": prompt}]
+        return state
+    return solve
+# Define an Inspect AI task for MiniF2F generation
+@task
+def minif2f_generate(
+    model="anthropic/claude-3-opus-20240229", 
+    save_dir="./save/minif2f_samples",
+    max_tokens=1024,
+    temperature=0.6,
+    top_p=0.95,
+    num_samples=1
+):    
+    # Create the task
+    return Task(
+        dataset=hf_dataset(path="cat-searcher/minif2f-lean4", split="validation", sample_fields=lean_field),
+        solver=[
+            few_shot_solver(),
+            generate(
+                max_tokens=max_tokens,
+                temperature=temperature,
+                top_p=top_p,
+                stop=['Write a lean4']
+            )
+        ],
+    )
 
 
-if __name__ == "__main__":
-    main()
+#if __name__ == "__main__":
+#    main()

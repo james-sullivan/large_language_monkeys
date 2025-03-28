@@ -7,7 +7,9 @@ git+https://github.com/EleutherAI/lm-evaluation-harness.git@8b41f92
 lean-dojo==1.1.2
 python-dotenv>=1.0.0
 
-# LangChain dependencies
-langchain>=0.0.335
-langchain-core>=0.1.0
-langchain-anthropic>=0.1.0
+# Keeping LangChain for compatibility with other modules
+# langchain>=0.0.335
+# langchain-core>=0.1.0
+# langchain-anthropic>=0.1.0
+# langchain-text-splitters>=0.0.1
+# langchain-community>=0.0.13

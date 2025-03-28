@@ -110,7 +110,7 @@ def check_completions(theorem: Theorem, completions: List[str]):
     corrects, states, num_steps = [], [], []
     for completion in tqdm(completions):
         proof_steps = get_proof_steps(completion)
-
+        print("proof_steps: ", proof_steps)
         state, step_cnt = check_proof(dojo_wrapper, proof_steps)
 
         correct = state == "Finished"
@@ -133,9 +133,11 @@ def process_theorem(config: ScriptConfig):
     repo = LeanGitRepo(config.repo_url, config.commit)
     theorem = Theorem(repo, config.file_path, get_theorem_name(result["theorem_name"]))
 
-    corrects, _, _ = check_completions(theorem, result["samples"])
+    corrects, states, num_steps = check_completions(theorem, result["samples"])
 
     result["is_corrects"] = corrects
+    result["states"] = states
+    result["num_steps"] = num_steps
 
     save_yaml(config.save_path, result)
 
