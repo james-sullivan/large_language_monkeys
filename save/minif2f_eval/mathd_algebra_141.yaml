@@ -1,0 +1,125 @@
+is_corrects:
+- false
+- false
+- false
+- false
+- false
+- false
+- false
+- false
+- false
+- false
+prompt: "```import Mathlib.Algebra.BigOperators.Basic\nimport Mathlib.Data.Real.Basic\n\
+  import Mathlib.Data.Complex.Basic\nimport Mathlib.Data.Nat.Log\nimport Mathlib.Data.Complex.Exponential\n\
+  import Mathlib.NumberTheory.Divisors\nimport Mathlib.Data.ZMod.Defs\nimport Mathlib.Data.ZMod.Basic\n\
+  import Mathlib.Topology.Basic\nimport Mathlib.Data.Nat.Digits\n\nopen BigOperators\n\
+  open Real\nopen Nat\nopen Topology\ntheorem theorem1\n  (k x: \u211D)\n  (h\u2080\
+  \ : x = (13 - Real.sqrt 131) / 4)\n  (h\u2081 : 2 * x^2 - 13 * x + k = 0) :\n  k\
+  \ = 19/4 :=\nby (\n  rw [h\u2080] at h\u2081\n  rw [eq_comm.mp (add_eq_zero_iff_neg_eq.mp\
+  \ h\u2081)]\n  norm_num\n  rw [pow_two]\n  rw [mul_sub]\n  rw [sub_mul, sub_mul]\n\
+  \  rw [Real.mul_self_sqrt _]\n  ring\n  linarith\n)\n```\nWrite a lean4 proof to\
+  \ the provided formal statement. You have access to the standard mathlib4 library.\n\
+  ```import Mathlib.Algebra.BigOperators.Basic\nimport Mathlib.Data.Real.Basic\nimport\
+  \ Mathlib.Data.Complex.Basic\nimport Mathlib.Data.Nat.Log\nimport Mathlib.Data.Complex.Exponential\n\
+  import Mathlib.NumberTheory.Divisors\nimport Mathlib.Data.ZMod.Defs\nimport Mathlib.Data.ZMod.Basic\n\
+  import Mathlib.Topology.Basic\nimport Mathlib.Data.Nat.Digits\n\nopen BigOperators\n\
+  open Real\nopen Nat\nopen Topology\ntheorem theorem2\n  (x p : \u211D)\n  (h\u2080\
+  \ : x < 2)\n  (h\u2081 : abs (x - 2) = p) :\n  x - p = 2 - 2 * p :=\nby (\n  suffices\
+  \ abs (x - 2) = -(x - 2) by\n    rw [h\u2081] at this\n    linarith\n  apply abs_of_neg\n\
+  \  linarith\n)\n```\nWrite a lean4 proof to the provided formal statement. You have\
+  \ access to the standard mathlib4 library.\n```import Mathlib.Algebra.BigOperators.Basic\n\
+  import Mathlib.Data.Real.Basic\nimport Mathlib.Data.Complex.Basic\nimport Mathlib.Data.Nat.Log\n\
+  import Mathlib.Data.Complex.Exponential\nimport Mathlib.NumberTheory.Divisors\n\
+  import Mathlib.Data.ZMod.Defs\nimport Mathlib.Data.ZMod.Basic\nimport Mathlib.Topology.Basic\n\
+  import Mathlib.Data.Nat.Digits\n\nopen BigOperators\nopen Real\nopen Nat\nopen Topology\n\
+  theorem theorem3\n  (x : \u211D)\n  (f g : \u211D \u2192 \u211D)\n  (h\u2080 : \u2200\
+  \ x, f x = x + 2)\n  (h\u2081 : \u2200 x, g x = x^2)\n  (h\u2082 : f (g x) = g (f\
+  \ x)) :\n  x = - 1/2 :=\nby (\n  norm_num\n  simp_all [-one_div]\n  field_simp [h\u2081\
+  ]\n  linarith\n)\n```\nWrite a lean4 proof to the provided formal statement. You\
+  \ have access to the standard mathlib4 library.\n```import Mathlib.Algebra.BigOperators.Basic\n\
+  import Mathlib.Data.Real.Basic\nimport Mathlib.Data.Complex.Basic\nimport Mathlib.Data.Nat.Log\n\
+  import Mathlib.Data.Complex.Exponential\nimport Mathlib.NumberTheory.Divisors\n\
+  import Mathlib.Data.ZMod.Defs\nimport Mathlib.Data.ZMod.Basic\nimport Mathlib.Topology.Basic\n\
+  import Mathlib.Data.Nat.Digits\n\nopen BigOperators\nopen Real\nopen Nat\nopen Topology\n\
+  theorem theorem4\n  (a b : \u211D)\n  (h\u2080 : a \u2260 b)\n  (h\u2081 : a \u2260\
+  \ 2 * b)\n  (h\u2082 : (4 * a + 3 * b) / (a - 2 * b) = 5) :\n  (a + 11 * b) / (a\
+  \ - b) = 2 :=\nby (\n  rw [eq_comm]\n  refine' (eq_div_iff _).mpr _\n  exact sub_ne_zero_of_ne\
+  \ h\u2080\n  rw [eq_comm] at h\u2082\n  suffices : a = 13 * b; linarith\n  have\
+  \ key : 5 * (a - 2 * b) = 4 * a + 3 * b; rwa [(eq_div_iff (sub_ne_zero_of_ne h\u2081\
+  )).mp]\n  linarith\n)\n```\nWrite a lean4 proof to the provided formal statement.\
+  \ You have access to the standard mathlib4 library.\n```import Mathlib.Algebra.BigOperators.Basic\n\
+  import Mathlib.Data.Real.Basic\nimport Mathlib.Data.Complex.Basic\nimport Mathlib.Data.Nat.Log\n\
+  import Mathlib.Data.Complex.Exponential\nimport Mathlib.NumberTheory.Divisors\n\
+  import Mathlib.Data.ZMod.Defs\nimport Mathlib.Data.ZMod.Basic\nimport Mathlib.Topology.Basic\n\
+  import Mathlib.Data.Nat.Digits\n\nopen BigOperators\nopen Real\nopen Nat\nopen Topology\n\
+  theorem theorem5\n  Int.floor ((9:\u211D) / 160 * 100) = 5 :=\nby (\n  rw [Int.floor_eq_iff]\n\
+  \  constructor\n  all_goals norm_num\n)\n```\n\n\n\nWrite a lean4 proof to the provided\
+  \ formal statement. You have access to the standard mathlib4 library.\n```import\
+  \ Mathlib.Algebra.BigOperators.Basic\nimport Mathlib.Data.Real.Basic\nimport Mathlib.Data.Complex.Basic\n\
+  import Mathlib.Data.Nat.Log\nimport Mathlib.Data.Complex.Exponential\nimport Mathlib.NumberTheory.Divisors\n\
+  import Mathlib.Data.ZMod.Defs\nimport Mathlib.Data.ZMod.Basic\nimport Mathlib.Topology.Basic\n\
+  import Mathlib.Data.Nat.Digits\n\nopen BigOperators\nopen Real\nopen Nat\nopen Topology\n\
+  theorem6\n  (a b : \u211D)\n  (h\u2081 : (a * b)=180)\n  (h\u2082 : 2 * (a + b)=54)\
+  \ :\n  (a^2 + b^2) = 369 :=\nby (\n\n\nIMPORTANT: Please only provide the proof\
+  \ for the theorem above. Do not repeat or explain the examples. Just write the Lean\
+  \ proof code for this specific theorem."
+question: "theorem mathd_algebra_141\n  (a b : \u211D)\n  (h\u2081 : (a * b)=180)\n\
+  \  (h\u2082 : 2 * (a + b)=54) :\n  (a^2 + b^2) = 369 := sorry"
+samples:
+- "```\nby (\n  theorem theorem6\n  (a b : \u211D)\n  (h\u2081 : (a * b) = 180)\n\
+  \  (h\u2082 : 2 * (a + b) = 54) :\n  (a^2 + b^2) = 369 :=\nbegin\n  rw [h\u2081\
+  ] at h\u2082,\n  have := add_div_two_eq_half_sum h\u2082,\n  rw [this] at h\u2082\
+  ,\n  have := mul_self_add_mul_self_eq_sum_of_squares a b,\n  rw [h\u2081, this],\n\
+  \  ring,\nend\n)\n```"
+- "```\nby (\n  theorem theorem6\n  (a b : \u211D)\n  (h\u2081 : (a * b) = 180)\n\
+  \  (h\u2082 : 2 * (a + b) = 54) :\n  (a^2 + b^2) = 369 :=\nbegin\n  rw [h\u2081\
+  ] at h\u2082,\n  have h3 : a + b = 27, by linarith,\n  have h4 : a = 180 / b, by\
+  \ rw [h\u2081], refl,\n  have h5 : b = 180 / a, by rw [h\u2081], refl,\n  rw [h4,\
+  \ h5],\n  have h6 : a^2 + b^2 = 180^2 / b^2 + 180^2 / a^2, by ring,\n  have h7 :\
+  \ a^2 + b^2 = 180^2 * (1 / b^2 + 1 / a^2), by ring,\n  have h8 : a^2 + b^2 = 180^2\
+  \ * (a^2 + b^2) / (a^2 * b^2), by ring,\n  have h9 : a^2 + b^2 = 180^2 * (a^2 +\
+  \ b^2) / (a * b)^2, by ring,\n  have h10 : a^2 + b^2 = 180^2 * (a^2 + b^2) / 180^2,\
+  \ by rw [h\u2081],\n  have h11 : a^2 + b^2 = a^2 + b^2, by ring,\n  exact h11,\n\
+  end\n)\n```"
+- "```\nby (\n  theorem theorem6\n  (a b : \u211D)\n  (h\u2081 : (a * b) = 180)\n\
+  \  (h\u2082 : 2 * (a + b) = 54) :\n  (a^2 + b^2) = 369 :=\nbegin\n  rw [h\u2081\
+  ] at h\u2082,\n  have := h\u2082,\n  rw [mul_div_assoc] at this,\n  rw [div_self\
+  \ this],\n  rw [mul_add, mul_comm],\n  linarith,\nend\n)\n```"
+- "```\nby (\n  theorem theorem6 (a b : \u211D) (h\u2081 : (a * b) = 180) (h\u2082\
+  \ : 2 * (a + b) = 54) : (a^2 + b^2) = 369 :=\nbegin\n  rw [h\u2081], -- Substitute\
+  \ (a * b) = 180\n  rw [h\u2082], -- Substitute 2 * (a + b) = 54\n  have h3 : a +\
+  \ b = 27, -- Derive a + b = 27 from h\u2082\n  linarith,\n  have h4 : a^2 + b^2\
+  \ = 369, -- Derive a^2 + b^2 = 369 from h1 and h3\n  linarith,\n  exact h4\nend\n\
+  )\n```"
+- "```\nby (\n  theorem theorem6\n  (a b : \u211D)\n  (h\u2081 : (a * b) = 180)\n\
+  \  (h\u2082 : 2 * (a + b) = 54) :\n  (a^2 + b^2) = 369 :=\nbegin\n  rw [h\u2081\
+  ] at h\u2082,\n  have h\u2083 : a + b = 27, by { rw [h\u2082], ring },\n  have h\u2084\
+  \ : a = 180 / b, by { rw [h\u2081], ring },\n  rw [h\u2083, h\u2084],\n  ring_nf,\n\
+  \  norm_num,\nend\n)\n```"
+- "```\nby (\n  theorem theorem6\n  (a b : \u211D)\n  (h\u2081 : (a * b) = 180)\n\
+  \  (h\u2082 : 2 * (a + b) = 54) :\n  (a^2 + b^2) = 369 :=\nbegin\n  rw [h\u2081\
+  ] at h\u2082,\n  have := add_mul_self a b,\n  rw [this, mul_comm] at h\u2082,\n\
+  \  rw [div_mul_self, mul_comm] at h\u2082,\n  linarith,\nend\n)\n```"
+- "```\nby (\n  theorem theorem6\n  (a b : \u211D)\n  (h\u2081 : (a * b) = 180)\n\
+  \  (h\u2082 : 2 * (a + b) = 54) :\n  (a^2 + b^2) = 369 :=\nbegin\n  rw [mul_comm]\
+  \ at h\u2081,\n  rw [h\u2081, h\u2082],\n  field_simp,\n  ring,\nend\n)\n```"
+- "```\nby (\n  theorem theorem6\n  (a b : \u211D)\n  (h\u2081 : (a * b) = 180)\n\
+  \  (h\u2082 : 2 * (a + b) = 54) :\n  (a^2 + b^2) = 369 :=\nbegin\n  rw [h\u2081\
+  ] at h\u2082,\n  have h\u2083 := add_div_two_eq_half_sum h\u2082,\n  rw [div_mul_self,\
+  \ mul_comm] at h\u2083,\n  have h\u2084 := sq (a) + sq (b),\n  rw [add_comm, \u2190\
+  \ sq_add_sq, \u2190 h\u2083, mul_div_cancel_left _ (ne_zero_of_mul_eq_zero h\u2081\
+  )] at h\u2084,\n  norm_num at h\u2084,\n  exact h\u2084,\nend\n)\n```"
+- "```\nby (\n  theorem theorem6\n  (a b : \u211D)\n  (h\u2081 : (a * b) = 180)\n\
+  \  (h\u2082 : 2 * (a + b) = 54) :\n  (a^2 + b^2) = 369 :=\nbegin\n  rw [h\u2081\
+  ] at h\u2082,\n  have := mul_div_cancel' (a + b) (ne_of_eq_of_ne h\u2082 (by norm_num)),\n\
+  \  rw [mul_div_cancel' a (ne_of_eq_of_ne h\u2081 (by norm_num)), \n      mul_div_cancel'\
+  \ b (ne_of_eq_of_ne h\u2081 (by norm_num))] at this,\n  rw [this, add_mul, add_mul,\
+  \ add_comm, add_assoc, add_comm],\n  ring,\nend\n)\n```"
+- "```\nby (\n  theorem theorem6\n  (a b : \u211D)\n  (h\u2081 : (a * b) = 180)\n\
+  \  (h\u2082 : 2 * (a + b) = 54) :\n  (a^2 + b^2) = 369 :=\nbegin\n  rw [h\u2081\
+  ] at h\u2082,\n  have : a + b = 27, by linarith,\n  rw [this],\n  have : a = 180\
+  \ / b, by rw [h\u2081], ring,\n  have : b = 180 / a, by rw [h\u2081], ring,\n  have\
+  \ : a^2 + b^2 = 180^2 / b^2 + 180^2 / a^2, by ring,\n  have : a^2 + b^2 = 180^2\
+  \ * (1 / b^2 + 1 / a^2), by ring,\n  have : a^2 + b^2 = 180^2 * (a^2 + b^2) / (a^2\
+  \ * b^2), by ring,\n  have : a^2 + b^2 = 369, by linarith,\nend\n)\n```"
+theorem_name: mathd_algebra_141

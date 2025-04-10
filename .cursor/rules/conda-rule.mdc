@@ -1,0 +1,7 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+
+When running python commands, you need to first activate the conda env. Use the format "conda activate llmonk-minif2f && <python command>"

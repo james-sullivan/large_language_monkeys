@@ -1,0 +1,67 @@
+is_corrects:
+- false
+num_steps:
+- 1
+prompt: "Write a lean4 proof to the provided formal statement. You have access to\
+  \ the standard mathlib4 library.\nimport Mathlib.Algebra.BigOperators.Basic\nimport\
+  \ Mathlib.Data.Real.Basic\nimport Mathlib.Data.Complex.Basic\nimport Mathlib.Data.Nat.Log\n\
+  import Mathlib.Data.Complex.Exponential\nimport Mathlib.NumberTheory.Divisors\n\
+  import Mathlib.Data.ZMod.Defs\nimport Mathlib.Data.ZMod.Basic\nimport Mathlib.Topology.Basic\n\
+  import Mathlib.Data.Nat.Digits\n\nopen BigOperators\nopen Real\nopen Nat\nopen Topology\n\
+  theorem theorem1\n  (k x: \u211D)\n  (h\u2080 : x = (13 - Real.sqrt 131) / 4)\n\
+  \  (h\u2081 : 2 * x^2 - 13 * x + k = 0) :\n  k = 19/4 :=\nby (\n  rw [h\u2080] at\
+  \ h\u2081\n  rw [eq_comm.mp (add_eq_zero_iff_neg_eq.mp h\u2081)]\n  norm_num\n \
+  \ rw [pow_two]\n  rw [mul_sub]\n  rw [sub_mul, sub_mul]\n  rw [Real.mul_self_sqrt\
+  \ _]\n  ring\n  linarith\n)\n\nWrite a lean4 proof to the provided formal statement.\
+  \ You have access to the standard mathlib4 library.\nimport Mathlib.Algebra.BigOperators.Basic\n\
+  import Mathlib.Data.Real.Basic\nimport Mathlib.Data.Complex.Basic\nimport Mathlib.Data.Nat.Log\n\
+  import Mathlib.Data.Complex.Exponential\nimport Mathlib.NumberTheory.Divisors\n\
+  import Mathlib.Data.ZMod.Defs\nimport Mathlib.Data.ZMod.Basic\nimport Mathlib.Topology.Basic\n\
+  import Mathlib.Data.Nat.Digits\n\nopen BigOperators\nopen Real\nopen Nat\nopen Topology\n\
+  theorem theorem2\n  (x p : \u211D)\n  (h\u2080 : x < 2)\n  (h\u2081 : abs (x - 2)\
+  \ = p) :\n  x - p = 2 - 2 * p :=\nby (\n  suffices abs (x - 2) = -(x - 2) by\n \
+  \   rw [h\u2081] at this\n    linarith\n  apply abs_of_neg\n  linarith\n)\n\nWrite\
+  \ a lean4 proof to the provided formal statement. You have access to the standard\
+  \ mathlib4 library.\nimport Mathlib.Algebra.BigOperators.Basic\nimport Mathlib.Data.Real.Basic\n\
+  import Mathlib.Data.Complex.Basic\nimport Mathlib.Data.Nat.Log\nimport Mathlib.Data.Complex.Exponential\n\
+  import Mathlib.NumberTheory.Divisors\nimport Mathlib.Data.ZMod.Defs\nimport Mathlib.Data.ZMod.Basic\n\
+  import Mathlib.Topology.Basic\nimport Mathlib.Data.Nat.Digits\n\nopen BigOperators\n\
+  open Real\nopen Nat\nopen Topology\ntheorem theorem3\n  (x : \u211D)\n  (f g : \u211D\
+  \ \u2192 \u211D)\n  (h\u2080 : \u2200 x, f x = x + 2)\n  (h\u2081 : \u2200 x, g\
+  \ x = x^2)\n  (h\u2082 : f (g x) = g (f x)) :\n  x = - 1/2 :=\nby (\n  norm_num\n\
+  \  simp_all [-one_div]\n  field_simp [h\u2081]\n  linarith\n)\n\nWrite a lean4 proof\
+  \ to the provided formal statement. You have access to the standard mathlib4 library.\n\
+  import Mathlib.Algebra.BigOperators.Basic\nimport Mathlib.Data.Real.Basic\nimport\
+  \ Mathlib.Data.Complex.Basic\nimport Mathlib.Data.Nat.Log\nimport Mathlib.Data.Complex.Exponential\n\
+  import Mathlib.NumberTheory.Divisors\nimport Mathlib.Data.ZMod.Defs\nimport Mathlib.Data.ZMod.Basic\n\
+  import Mathlib.Topology.Basic\nimport Mathlib.Data.Nat.Digits\n\nopen BigOperators\n\
+  open Real\nopen Nat\nopen Topology\ntheorem theorem4\n  (a b : \u211D)\n  (h\u2080\
+  \ : a \u2260 b)\n  (h\u2081 : a \u2260 2 * b)\n  (h\u2082 : (4 * a + 3 * b) / (a\
+  \ - 2 * b) = 5) :\n  (a + 11 * b) / (a - b) = 2 :=\nby (\n  rw [eq_comm]\n  refine'\
+  \ (eq_div_iff _).mpr _\n  exact sub_ne_zero_of_ne h\u2080\n  rw [eq_comm] at h\u2082\
+  \n  suffices : a = 13 * b; linarith\n  have key : 5 * (a - 2 * b) = 4 * a + 3 *\
+  \ b; rwa [(eq_div_iff (sub_ne_zero_of_ne h\u2081)).mp]\n  linarith\n)\n\nWrite a\
+  \ lean4 proof to the provided formal statement. You have access to the standard\
+  \ mathlib4 library.\nimport Mathlib.Algebra.BigOperators.Basic\nimport Mathlib.Data.Real.Basic\n\
+  import Mathlib.Data.Complex.Basic\nimport Mathlib.Data.Nat.Log\nimport Mathlib.Data.Complex.Exponential\n\
+  import Mathlib.NumberTheory.Divisors\nimport Mathlib.Data.ZMod.Defs\nimport Mathlib.Data.ZMod.Basic\n\
+  import Mathlib.Topology.Basic\nimport Mathlib.Data.Nat.Digits\n\nopen BigOperators\n\
+  open Real\nopen Nat\nopen Topology\ntheorem theorem5\n  Int.floor ((9:\u211D) /\
+  \ 160 * 100) = 5 :=\nby (\n  rw [Int.floor_eq_iff]\n  constructor\n  all_goals norm_num\n\
+  )\n\nWrite a lean4 proof to the provided formal statement. You have access to the\
+  \ standard mathlib4 library. Only give the proof, no other text or formatting.\n\
+  import Mathlib.Algebra.BigOperators.Basic\nimport Mathlib.Data.Real.Basic\nimport\
+  \ Mathlib.Data.Complex.Basic\nimport Mathlib.Data.Nat.Log\nimport Mathlib.Data.Complex.Exponential\n\
+  import Mathlib.NumberTheory.Divisors\nimport Mathlib.Data.ZMod.Defs\nimport Mathlib.Data.ZMod.Basic\n\
+  import Mathlib.Topology.Basic\nimport Mathlib.Data.Nat.Digits\n\nopen BigOperators\n\
+  open Real\nopen Nat\nopen Topology\ntheorem6\n  (a b : \u211D)\n  (h\u2081 : (a\
+  \ * b)=180)\n  (h\u2082 : 2 * (a + b)=54) :\n  (a^2 + b^2) = 369 :=\nby (\n"
+question: "theorem mathd_algebra_141\n  (a b : \u211D)\n  (h\u2081 : (a * b)=180)\n\
+  \  (h\u2082 : 2 * (a + b)=54) :\n  (a^2 + b^2) = 369 := sorry"
+samples:
+- "rw [h\u2080] at h\u2081\n  rw [eq_comm.mp (add_eq_zero_iff_neg_eq.mp h\u2081)]\n\
+  \  norm_num\n  rw [pow_two]\n  rw [mul_sub]\n  rw [sub_mul, sub_mul]\n  rw [Real.mul_self_sqrt\
+  \ _]\n  ring\n  linarith\n)"
+states:
+- 'TacticError/Incomplete Step count: 1'
+theorem_name: mathd_algebra_141
